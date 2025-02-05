@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Me</title>
+    <style>
+        body {
+            background-color: black;
+            color: lime;
+            font-family: "Courier New", monospace;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .window {
+            border: 2px solid lime;
+            width: 80%;
+            max-width: 600px;
+            padding: 20px;
+            box-shadow: 4px 4px 0 lime;
+        }
+        .title-bar {
+            background-color: lime;
+            color: black;
+            padding: 5px;
+            font-weight: bold;
+            text-align: left;
+        }
+        .content {
+            padding: 10px;
+            font-size: 20px;
+            font-weight: bold;
+            text-shadow: 0 0 5px lime, 0 0 10px lime;
+        }
+        .button {
+            display: inline-block;
+            background: lime;
+            color: black;
+            border: 2px solid black;
+            padding: 5px 10px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 2px 2px 0 black;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+        .button:hover {
+            box-shadow: 4px 4px 0 black;
+            background: black;
+            color: lime;
+            border: 2px solid lime;
+        }
+    </style>
+</head>
+<body>
+    <div class="window">
+        <div class="title-bar">File Explorer - [BIO]</div>
+        <div class="content">
+            This is my BIO page.  
+            <br><br>
+            All glory to God.  
+            <br><br>
+            <a href="index.html" class="button">Back to Home</a>
+        </div>
+    </div>
+</body>
+</html>
