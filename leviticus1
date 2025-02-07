@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leviticus 1</title>
+    <style>
+        body {
+            background-color: black;
+            color: lime;
+            font-family: "Courier New", monospace;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            border: 2px solid lime;
+            padding: 20px;
+            box-shadow: 4px 4px 0 lime;
+        }
+        h1 {
+            color: lime;
+        }
+        p {
+            text-align: left;
+            line-height: 1.6;
+        }
+        .button {
+            display: inline-block;
+            background: lime;
+            color: black;
+            border: 2px solid black;
+            padding: 5px 10px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 2px 2px 0 black;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+        .button:hover {
+            box-shadow: 4px 4px 0 black;
+            background: black;
+            color: lime;
+            border: 2px solid lime;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Leviticus 1</h1>
+        <p>God is dwelling among Israel—but sets boundaries for how sinful humans can approach His presence.</p>
+        <p>The burnt offerings were the most valuable cattle, sheep, or birds—animals that cost the worshiper something.</p>
+        <p><strong>Forgiveness requires blood.</strong> This is about atonement – a life is given to cover sin. This is very serious and foreshadows Jesus.</p>
+        <p>The person, not the priest, must kill the animal—enforcing personal responsibility for sin.</p>
+        <p>Blood represents life, which is the price of redemption.</p>
+        <p>Washing entrails and legs symbolizes an internal purification and the purification of one’s walk – essential aspects of holiness.</p>
+        <p>The heart, intestines, and inner parts symbolize thoughts, emotions, and motives.</p>
+        <p>Before offering ourselves to God, we need a cleansing of the heart and inner being—true worship isn’t just external; it starts from within.</p>
+        <p><strong>“First clean the inside of the cup and dish, so that the outside of it may also become clean.”</strong></p>
+        <p>God isn’t interested in outward acts of worship—He wants a clean heart and pure motives. <strong>“Create in me a clean heart, O God.”</strong></p>
+        <p>The legs represent our journey, actions, and lifestyle—walking represents our way of life.</p>
+        <p>Jesus washed the disciples' feet – even those who literally followed Jesus needed a cleansing in their daily walk.</p>
+        <p>Leviticus 1 parallels this: the worshiper brings an offering, but even the legs (the means by which they walk and carry themselves in life) must be washed before being accepted.</p>
+        <p>Holiness is not just about internal purity but how we live, move, and act daily.</p>
+        <p>The burnt offering was completely consumed by fire after being washed, meaning the whole person—inside and out—is given to God.</p>
+        <p><strong>“Present your bodies as a living sacrifice, holy and acceptable to God, which is your spiritual worship.”</strong></p>
+        <p>Being purified in heart and actions before fully offering oneself to God.</p>
+        <p>A complete cleansing of the inner heart and outer walk before coming into God’s presence.</p>
+        <p>Foreshadows Jesus cleansing us completely—inside (heart, mind, motives) and outside (our daily walk in actions). True worship requires both internal transformation and a purified life.</p>
+        <p>Burnt offerings are completely consumed, representing total devotion and giving oneself fully to God.</p>
+        <p><strong>Fire is God‘s refining power</strong>—purifying and transforming what is given to Him.</p>
+        <p>Blood on the altar foreshadows Jesus’ blood on the cross, which grants us access to God.</p>
+        <p>If they couldn’t afford a bull, they could bring a sheep or a goat; if they couldn’t afford that, they could bring a dove or a pigeon.</p>
+        <p><strong>God makes a way, regardless of wealth.</strong></p>
+        <p>Worship is about the heart, not the size of the offering. Even the poorest person had access to God—just as Jesus made salvation available to all.</p>
+        <p>Jesus is the ultimate burnt offering—completely given over to God’s will.</p>
+        <p><strong>The Lamb of God who takes on the sin of the world.</strong></p>
+        <p>Jesus’ death replaced the burnt offering system. His sacrifice was once and for all.</p>
+        <p>God desires wholehearted devotion – the burnt offering was completely consumed, as we are called to offer ourselves fully to God.</p>
+        <p><strong>Forgiveness requires a substitute.</strong> Sin is serious, and atonement comes through the shedding of blood, ultimately fulfilled in Christ's sacrifice.</p>
+        <p>God provides a way for everyone—rich or poor—to access Him, as we all have access to Jesus Christ.</p>
+        <p>The Israelites needed the offering; we need Jesus to enter God’s presence.</p>
+        <p><strong>Only through a substitute sacrifice can a sinful person approach a holy God.</strong> This foreshadows Jesus, the perfect sacrifice, and calls us to total surrender in worship.</p>
+        <a href="index.html" class="button">Back to Home</a>
+    </div>
+</body>
+</html>
