@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mark 7 Breakdown</title>
+    <style>
+        body {
+            background-color: black;
+            color: lime;
+            font-family: "Courier New", monospace;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .window {
+            border: 2px solid lime;
+            width: 80%;
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            text-align: left;
+            box-shadow: 4px 4px 0 lime;
+        }
+        .title-bar {
+            background-color: lime;
+            color: black;
+            padding: 8px;
+            font-weight: bold;
+            text-align: left;
+        }
+        h1, h2, h3 {
+            color: lime;
+            text-shadow: 0 0 5px lime, 0 0 10px lime;
+        }
+        p {
+            line-height: 1.5;
+        }
+        .button {
+            display: inline-block;
+            background: lime;
+            color: black;
+            border: 2px solid black;
+            padding: 5px 10px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 2px 2px 0 black;
+            transition: all 0.2s ease;
+        }
+        .button:hover {
+            box-shadow: 4px 4px 0 black;
+            background: black;
+            color: lime;
+            border: 2px solid lime;
+        }
+    </style>
+</head>
+<body>
+    <div class="window">
+        <div class="title-bar">File Explorer - [Mark 7 Breakdown]</div>
+        <h1>Mark 7: Breakdown and Deeper Meaning</h1>
+        <p><strong>Mark 7 is a powerful chapter where Jesus confronts religious traditions, exposes the true source of sin, and extends His mission beyond Israel.</strong></p>
+
+        <h2>1. Jesus Confronts the Pharisees on Tradition (Mark 7:1-23)</h2>
+        <p><strong>Context:</strong> The Pharisees criticize Jesus’ disciples for eating with unwashed hands, prioritizing oral traditions over God's commandments.</p>
+        <p><strong>Key Teachings:</strong></p>
+        <ul>
+            <li><strong>Hypocrisy of Man-Made Religion:</strong> Jesus quotes Isaiah 29:13, condemning their empty worship.</li>
+            <li><strong>True Defilement Comes from Within:</strong> Sin is from the heart, not external actions (Mark 7:20-23).</li>
+            <li><strong>Jesus Overturns Food Laws:</strong> This foreshadows Acts 10:15.</li>
+        </ul>
+
+        <h2>2. The Faith of the Syrophoenician Woman (Mark 7:24-30)</h2>
+        <p><strong>Context:</strong> A Gentile woman begs Jesus to heal her daughter.</p>
+        <p><strong>The Controversial Exchange:</strong> Jesus tests her faith, and she humbly responds, proving that God’s mercy is for all.</p>
+        <p><strong>Deeper Meaning:</strong></p>
+        <ul>
+            <li>Faith, not nationality, grants access to God's blessings.</li>
+            <li>Jesus foreshadows salvation for all nations (Matthew 28:19).</li>
+        </ul>
+
+        <h2>3. Jesus Heals a Deaf and Mute Man (Mark 7:31-37)</h2>
+        <p><strong>Context:</strong> Jesus heals a man in a personal, physical way.</p>
+        <p><strong>Deeper Meaning:</strong></p>
+        <ul>
+            <li>Jesus’ miracles are deeply personal.</li>
+            <li>Physical healing symbolizes spiritual healing.</li>
+            <li>Fulfills Isaiah 35:5-6, proving Jesus is the Messiah.</li>
+        </ul>
+
+        <h2>Overall Takeaways:</h2>
+        <ul>
+            <li>Religious tradition should never replace God's Word.</li>
+            <li>Sin is an internal issue, not just external actions.</li>
+            <li>God's mercy is available to all who have faith.</li>
+            <li>Jesus is the Messiah who heals physically and spiritually.</li>
+        </ul>
+
+        <button id="clickButton" class="button">Click Me</button>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.getElementById("clickButton").addEventListener("click", function() {
+                alert("Examine your heart, not just your actions.");
+            });
+        });
+    </script>
+</body>
+</html>
