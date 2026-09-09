@@ -260,6 +260,7 @@ a:hover,a:focus-visible{ background:var(--dos-cyan); color:var(--dos-blue); outl
    TYPEWRITER — applied by tui.js only; nothing is hidden without JS
    ------------------------------------------------------------------ */
 .tw-hide{ display:none !important; }
+.tw-skip{ color:var(--dos-black); }
 .tw-caret{ margin-left:0; }
 
 /* external link marker */
