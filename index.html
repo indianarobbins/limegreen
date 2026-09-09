@@ -1,103 +1,408 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secret 95</title>
-    <style>
-        body {
-            background-color: black;
-            color: lime;
-            font-family: "Courier New", monospace;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .window {
-            border: 2px solid lime;
-            width: 80%;
-            max-width: 600px;
-            padding: 20px;
-            box-shadow: 4px 4px 0 lime;
-        }
-        .title-bar {
-            background-color: lime;
-            color: black;
-            padding: 5px;
-            font-weight: bold;
-            text-align: left;
-        }
-        .content {
-            padding: 10px;
-            font-size: 20px;
-            font-weight: bold;
-            text-shadow: 0 0 5px lime, 0 0 10px lime;
-        }
-        .button {
-            display: inline-block;
-            background: lime;
-            color: black;
-            border: 2px solid black;
-            padding: 5px 10px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 20px;
-            box-shadow: 2px 2px 0 black;
-            transition: all 0.2s ease;
-            text-decoration: none;
-        }
-            .exodus40-button {
-            background: lime;
-            color: black;
-            border: 2px solid black;
-        }
-        .button:hover {
-            box-shadow: 4px 4px 0 black;
-            background: black;
-            color: lime;
-            border: 2px solid lime;
-        }
-            .exodus40-button:hover {
-            background: black;
-            color: lime;
-            border: 2px solid lime;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Secret 95</title>
+<meta name="description" content="Secret 95 — if you found this page, you might be special.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%230000AA'/%3E%3Crect x='3' y='3' width='10' height='10' fill='none' stroke='%23C0C0C0'/%3E%3Crect x='6' y='6' width='4' height='4' fill='%23FFFF00'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ------------------------------------------------------------------
+   PALETTE + TYPE  — tweak everything from here
+   ------------------------------------------------------------------ */
+:root{
+  --dos-blue:      #0000AA;   /* classic DOS blue */
+  --dos-blue-deep: #000080;   /* deeper alt, used for insets */
+  --dos-white:     #FFFFFF;
+  --dos-gray:      #C0C0C0;   /* secondary text */
+  --dos-yellow:    #FFFF00;   /* headers / selection */
+  --dos-cyan:      #00FFFF;   /* links */
+  --dos-red:       #FF5555;   /* warnings, sparingly */
+  --dos-black:     #000000;
+
+  --font-mono: 'IBM Plex Mono','Courier New',Courier,monospace;
+
+  /* the character cell: everything scales off this one value */
+  --cell: clamp(11px, 2.6vw, 16px);
+  --line: 1.45;
+  --border: 2px;
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+
+html{ background:var(--dos-blue); }
+
+body{
+  margin:0;
+  min-height:100vh;
+  background:var(--dos-blue);
+  color:var(--dos-white);
+  font-family:var(--font-mono);
+  font-size:var(--cell);
+  line-height:var(--line);
+  -webkit-font-smoothing:none;
+  font-smooth:never;
+  display:flex;
+  flex-direction:column;
+}
+
+/* Hard reset of anything modern/soft */
+a,button{ font:inherit; border-radius:0; }
+a{ color:var(--dos-cyan); text-decoration:underline; text-underline-offset:2px; }
+a:hover,a:focus-visible{ background:var(--dos-cyan); color:var(--dos-blue); outline:none; text-decoration:none; }
+
+/* ------------------------------------------------------------------
+   MENU BAR  (decorative, DOS app style)
+   ------------------------------------------------------------------ */
+.tui-menubar{
+  background:var(--dos-gray);
+  color:var(--dos-black);
+  padding:0 .6em;
+  display:flex;
+  gap:1.6em;
+  flex-wrap:wrap;
+  white-space:nowrap;
+  user-select:none;
+}
+.tui-menubar span{ padding:.15em 0; }
+.tui-menubar .key{ color:var(--dos-red); font-weight:700; }
+.tui-menubar .clock{ margin-left:auto; }
+
+/* ------------------------------------------------------------------
+   DESKTOP AREA
+   ------------------------------------------------------------------ */
+.tui-desktop{
+  flex:1;
+  padding:1.6em .8em 2.2em;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:1.4em;
+}
+
+/* ------------------------------------------------------------------
+   PANEL  — the reusable TUI window
+   ------------------------------------------------------------------ */
+.tui-panel{
+  position:relative;
+  width:100%;
+  max-width:64ch;                 /* ~64 character columns */
+  border:var(--border) solid var(--dos-white);
+  background:var(--dos-blue);
+  padding:1.1em 1.4em 1.3em;
+}
+/* the "double border" TUI depth trick — hard offset, no blur */
+.tui-panel--raised::after{
+  content:"";
+  position:absolute;
+  inset:4px -6px -6px 4px;
+  border-right:var(--border) solid var(--dos-black);
+  border-bottom:var(--border) solid var(--dos-black);
+  pointer-events:none;
+}
+.tui-panel--inset{
+  border-color:var(--dos-gray);
+  background:var(--dos-blue-deep);
+  padding:.7em 1em;
+}
+
+/* Title bar sits ON the top border, like ╡ TITLE ╞ */
+.tui-titlebar{
+  position:absolute;
+  top:calc(var(--border) * -1);
+  left:1.6em;
+  transform:translateY(-50%);
+  background:var(--dos-blue);
+  color:var(--dos-yellow);
+  font-weight:700;
+  padding:0 .6em;
+  white-space:nowrap;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+}
+.tui-panel--inset .tui-titlebar{ background:var(--dos-blue-deep); color:var(--dos-gray); }
+
+/* system readout: fields wrap cleanly instead of breaking mid-value */
+.sysrow{
+  display:flex;
+  flex-wrap:wrap;
+  gap:.1em 2ch;
+  color:var(--dos-gray);
+}
+.sysrow span{ white-space:nowrap; }
+.sysrow em{ color:var(--dos-yellow); font-style:normal; }
+
+/* Close box, top-right, purely decorative */
+.tui-closebox{
+  position:absolute;
+  top:calc(var(--border) * -1);
+  right:1.4em;
+  transform:translateY(-50%);
+  background:var(--dos-blue);
+  color:var(--dos-gray);
+  padding:0 .5em;
+}
+
+/* ------------------------------------------------------------------
+   CONTENT
+   ------------------------------------------------------------------ */
+.banner{
+  color:var(--dos-yellow);
+  font-weight:700;
+  font-size:1.25em;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  margin:0 0 .1em;
+}
+/* a real double rule — box-drawing glyphs leave gaps in most mono fonts */
+.rule{
+  height:4px;
+  border-top:1px solid var(--dos-gray);
+  border-bottom:1px solid var(--dos-gray);
+  margin:.5em 0 1.1em;
+}
+.lede{
+  margin:0 0 .35em;
+  color:var(--dos-white);
+}
+.sub{
+  margin:0 0 1.4em;
+  color:var(--dos-gray);
+}
+
+/* blinking cursor block */
+.cursor{
+  display:inline-block;
+  width:.62em;
+  height:1.05em;
+  background:var(--dos-white);
+  vertical-align:-.18em;
+  margin-left:.15em;
+  animation:blink 1s steps(1,end) infinite;
+}
+@keyframes blink{ 0%,49%{opacity:1} 50%,100%{opacity:0} }
+
+/* ------------------------------------------------------------------
+   BUTTONS  — bracketed DOS dialog buttons, invert on hover
+   ------------------------------------------------------------------ */
+.tui-menu{
+  list-style:none;
+  margin:0;
+  padding:0;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(21ch,1fr));
+  gap:.15em .8em;
+}
+.tui-btn{
+  display:block;
+  width:100%;
+  text-align:left;
+  background:transparent;
+  color:var(--dos-white);
+  border:0;
+  padding:.12em .3em;
+  text-decoration:none;
+  cursor:pointer;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.tui-btn .brk{ color:var(--dos-gray); }
+.tui-btn .hot{ color:var(--dos-yellow); font-weight:700; }
+/* selection = full colour inversion, instant, no easing */
+.tui-btn:hover,
+.tui-btn:focus-visible{
+  background:var(--dos-gray);
+  color:var(--dos-black);
+  outline:none;
+}
+.tui-btn:hover .brk,.tui-btn:focus-visible .brk,
+.tui-btn:hover .hot,.tui-btn:focus-visible .hot{ color:var(--dos-black); }
+
+.tui-btn--action{ color:var(--dos-yellow); font-weight:700; }
+.tui-btn--action:hover,.tui-btn--action:focus-visible{ background:var(--dos-yellow); color:var(--dos-blue); }
+.tui-btn--action:hover .brk,.tui-btn--action:focus-visible .brk{ color:var(--dos-blue); }
+
+/* ------------------------------------------------------------------
+   STATUS BAR
+   ------------------------------------------------------------------ */
+.tui-statusbar{
+  background:var(--dos-gray);
+  color:var(--dos-black);
+  padding:.15em .6em;
+  display:flex;
+  gap:1.4em;
+  flex-wrap:wrap;
+  white-space:nowrap;
+  user-select:none;
+}
+.tui-statusbar b{ background:var(--dos-black); color:var(--dos-gray); padding:0 .35em; font-weight:400; }
+.tui-statusbar .right{ margin-left:auto; }
+
+/* ------------------------------------------------------------------
+   BOOT SEQUENCE  (optional flavour, auto-skipped for reduced motion)
+   ------------------------------------------------------------------ */
+#boot{
+  position:fixed;
+  inset:0;
+  z-index:10;
+  background:var(--dos-black);
+  color:var(--dos-gray);
+  padding:1.2em 1em;
+  white-space:pre-wrap;
+  overflow:hidden;
+  cursor:pointer;
+}
+#boot .ok{ color:var(--dos-white); }
+body.booted #boot{ display:none; }
+
+/* faint scanlines — flavour only, kept very low contrast */
+.scanlines{
+  position:fixed;
+  inset:0;
+  z-index:9;
+  pointer-events:none;
+  background:repeating-linear-gradient(
+    to bottom,
+    rgba(0,0,0,.14) 0px,
+    rgba(0,0,0,.14) 1px,
+    rgba(0,0,0,0) 1px,
+    rgba(0,0,0,0) 3px);
+}
+
+@media (prefers-reduced-motion:reduce){
+  .cursor{ animation:none; }
+  #boot{ display:none; }
+  .scanlines{ display:none; }
+}
+
+/* narrow screens: drop the menu-bar clock, tighten the grid */
+@media (max-width:30em){
+  .tui-menubar .clock{ display:none; }
+  .tui-menu{ grid-template-columns:1fr; }
+  .tui-panel{ padding:1em .9em 1.1em; }
+  .tui-statusbar{ gap:.9em; }
+}
+</style>
 </head>
 <body>
-    <div class="window">
-        <div class="title-bar">File Explorer - [Hidden Message]</div>
-        <div class="content">
-            Hi there, if you found this page, you might be special.
-            <br><br>
-            <button id="clickButton" class="button">Click Me</button>
-            <br><br>
-            <a href="bio.html" class="button">Go to BIO</a>
-            <br><br>
-            <a href="exodus34.html" class="button">Exodus 34notes</a>
-            <br><br>
-            <a href="exodus40.html" class="button">Exodus 40notes</a>
-            <br><br>
-            <a href="leviticus1.html" class="button">Leviticus 1 notes</a>
-            <br><br>
-            <a href="leviticus2.html" class="button">Leviticus 2 notes</a>
-            <br><br>
-            <a href="mark5.html" class="button">Mark 5 notes</a>
-            <br><br>
-            <a href="mark7.html" class="button">Mark 7 notes</a>
-        </div>
-    </div>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            document.getElementById("clickButton").addEventListener("click", function() {
-                alert("You are definitely special!");
-            });
-        });
-    </script>
+<div id="boot" aria-hidden="true"></div>
+<div class="scanlines" aria-hidden="true"></div>
+
+<!-- ── MENU BAR ─────────────────────────────────────────────── -->
+<nav class="tui-menubar" aria-hidden="true">
+  <span><span class="key">F</span>ile</span>
+  <span><span class="key">E</span>dit</span>
+  <span><span class="key">S</span>earch</span>
+  <span><span class="key">V</span>iew</span>
+  <span><span class="key">H</span>elp</span>
+  <span class="clock" id="clock">--:--</span>
+</nav>
+
+<!-- ── DESKTOP ──────────────────────────────────────────────── -->
+<main class="tui-desktop">
+
+  <section class="tui-panel tui-panel--raised">
+    <div class="tui-titlebar">C:\SECRET95.EXE</div>
+    <div class="tui-closebox" aria-hidden="true">[■]</div>
+
+    <h1 class="banner">Secret 95</h1>
+    <div class="rule" aria-hidden="true"></div>
+
+    <p class="lede">Hi there, if you found this page, you might be special.<span class="cursor" aria-hidden="true"></span></p>
+    <p class="sub">Select an entry below, or press ENTER on a highlighted item.</p>
+
+    <ul class="tui-menu">
+      <li><button id="clickButton" class="tui-btn tui-btn--action" type="button"><span class="brk">[</span> CLICK ME <span class="brk">]</span></button></li>
+      <li><a class="tui-btn" href="bio.html"><span class="brk">[</span> <span class="hot">B</span>IO <span class="brk">]</span></a></li>
+      <li><a class="tui-btn" href="exodus34.html"><span class="brk">[</span> EXODUS 34 NOTES <span class="brk">]</span></a></li>
+      <li><a class="tui-btn" href="exodus40.html"><span class="brk">[</span> EXODUS 40 NOTES <span class="brk">]</span></a></li>
+      <li><a class="tui-btn" href="leviticus1.html"><span class="brk">[</span> LEVITICUS 1 NOTES <span class="brk">]</span></a></li>
+      <li><a class="tui-btn" href="leviticus2.html"><span class="brk">[</span> LEVITICUS 2 NOTES <span class="brk">]</span></a></li>
+      <li><a class="tui-btn" href="mark5.html"><span class="brk">[</span> MARK 5 NOTES <span class="brk">]</span></a></li>
+      <li><a class="tui-btn" href="mark7.html"><span class="brk">[</span> MARK 7 NOTES <span class="brk">]</span></a></li>
+    </ul>
+  </section>
+
+  <section class="tui-panel tui-panel--inset" aria-hidden="true">
+    <div class="tui-titlebar">System</div>
+    <div class="sysrow">
+      <span>DRIVE C: ONLINE</span>
+      <span>8 FILES</span>
+      <span>MEM 640K OK</span>
+      <span>STATUS: <em>READY</em></span>
+    </div>
+  </section>
+
+</main>
+
+<!-- ── STATUS BAR ───────────────────────────────────────────── -->
+<footer class="tui-statusbar">
+  <span><b>F1</b> Help</span>
+  <span><b>F3</b> View</span>
+  <span><b>F5</b> Copy</span>
+  <span><b>F10</b> Exit</span>
+  <span class="right">INS &nbsp; NUM &nbsp; CAPS</span>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  /* --- easter egg (unchanged behaviour) --- */
+  var btn = document.getElementById("clickButton");
+  if (btn) btn.addEventListener("click", function(){ alert("You are definitely special!"); });
+
+  /* --- menu bar clock --- */
+  function tick(){
+    var d = new Date(), h = d.getHours(), m = d.getMinutes();
+    var ap = h < 12 ? "am" : "pm";
+    h = h % 12; if (h === 0) h = 12;
+    document.getElementById("clock").textContent =
+      h + ":" + (m < 10 ? "0" + m : m) + ap;
+  }
+  tick(); setInterval(tick, 20000);
+
+  /* --- boot sequence: types a few lines, then reveals the page --- */
+  var boot   = document.getElementById("boot");
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var seen   = false;
+  try { seen = sessionStorage.getItem("s95boot") === "1"; } catch(e){}
+
+  function finish(){
+    document.body.classList.add("booted");
+    try { sessionStorage.setItem("s95boot","1"); } catch(e){}
+  }
+
+  if (reduce || seen || !boot){
+    finish();
+  } else {
+    var lines = [
+      "Secret95 BIOS v1.03  (C) 1995",
+      "",
+      "Memory Test : 640K OK",
+      "Detecting IDE drives ... C: OK",
+      "Loading SECRET95.EXE ...",
+      ""
+    ];
+    var i = 0;
+    boot.addEventListener("click", finish);
+    document.addEventListener("keydown", function once(){
+      document.removeEventListener("keydown", once); finish();
+    });
+    (function next(){
+      if (document.body.classList.contains("booted")) return;
+      if (i >= lines.length){ setTimeout(finish, 260); return; }
+      boot.textContent += lines[i++] + "\n";
+      setTimeout(next, 190);
+    })();
+  }
+})();
+</script>
 </body>
 </html>
