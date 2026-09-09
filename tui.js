@@ -57,6 +57,8 @@
   var MAX_FULL_CHARS = 1600;  // beyond this, "full" degrades to "intro"
   var SKIP_SELECTOR = ".tui-titlebar,.tui-closebox,.rule,.tui-menu,.tui-actions,.sysrow,.tui-menubar,.tui-statusbar";
 
+  var skipTyping = null;   /* set while a typewriter is running */
+
   function initTypewriter(){
     var host = document.querySelector("[data-typewriter]");
     if (!host || REDUCE) return;
@@ -134,6 +136,7 @@
       for (var g = 0; g < hidden.length; g++) hidden[g].classList.remove("tw-hide");
       for (var q = 0; q < deferred.length; q++) deferred[q].classList.remove("tw-hide");
       host.removeAttribute("aria-busy");
+      skipTyping = null;
       detach();
     }
 
@@ -150,6 +153,7 @@
     document.addEventListener("touchstart", finish, { passive: true });
 
     host.setAttribute("aria-busy", "true");
+    skipTyping = finish;
 
     /* tell people they can skip — the nav is hidden until we finish */
     var bar = document.querySelector(".tui-statusbar");
@@ -182,58 +186,131 @@
   }
 
   /* ---------------------------------------------------------------
-     BOOT SEQUENCE — only on pages that include #boot
+     MENU KEYBOARD NAVIGATION
+     Arrow keys move the highlight through the menu, Enter opens it.
+     Focus is the selection, so the existing :focus-visible styling
+     does the highlighting and Enter activates links and buttons
+     natively — no key handling needed for activation.
      --------------------------------------------------------------- */
-  var boot = document.getElementById("boot");
-  if (!boot){ initTypewriter(); return; }
+  var forceReveal = function(){ if (skipTyping) skipTyping(); };
 
-  var seen = false;
-  try { seen = sessionStorage.getItem("s95boot") === "1"; } catch(e){}
+  function initMenuNav(){
+    var menu = document.querySelector(".tui-menu");
+    if (!menu) return;
 
-  function bootDone(){
-    if (document.body.classList.contains("booted")) return;
-    document.body.classList.add("booted");
-    try { sessionStorage.setItem("s95boot","1"); } catch(e){}
-    initTypewriter();
+    function items(){
+      return Array.prototype.slice.call(menu.querySelectorAll(".tui-btn"));
+    }
+
+    /* how many columns the grid is currently showing */
+    function columns(){
+      var t = getComputedStyle(menu).gridTemplateColumns;
+      if (!t || t === "none") return 1;
+      return t.trim().split(/\s+/).length;
+    }
+
+    document.addEventListener("keydown", function(e){
+      var k = e.key;
+      if (k !== "ArrowUp" && k !== "ArrowDown" && k !== "ArrowLeft" &&
+          k !== "ArrowRight" && k !== "Home" && k !== "End") return;
+      if (e.altKey || e.ctrlKey || e.metaKey) return;
+
+      /* typing in a field should keep normal cursor behaviour */
+      var t = e.target;
+      if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
+
+      /* an arrow while the page is still printing reveals it first,
+         so the very first press also lands on an item */
+      forceReveal();
+
+      var list = items();
+      if (!list.length) return;
+
+      var cols = columns();
+      var i = list.indexOf(document.activeElement);
+      var n = list.length;
+      var j;
+
+      if (i < 0){
+        j = (k === "ArrowUp" || k === "ArrowLeft" || k === "End") ? n - 1 : 0;
+      } else if (k === "Home"){
+        j = 0;
+      } else if (k === "End"){
+        j = n - 1;
+      } else {
+        var delta = (k === "ArrowRight") ?  1
+                  : (k === "ArrowLeft")  ? -1
+                  : (k === "ArrowDown")  ?  cols
+                  :                       -cols;
+        j = ((i + delta) % n + n) % n;
+      }
+
+      e.preventDefault();
+      list[j].focus();
+    });
   }
 
-  if (REDUCE || seen){ bootDone(); return; }
+  /* ---------------------------------------------------------------
+     BOOT SEQUENCE — only on pages that include #boot
+     --------------------------------------------------------------- */
+  function startBoot(boot){
+    var seen = false;
+    try { seen = sessionStorage.getItem("s95boot") === "1"; } catch(e){}
 
-  /* [text, ms to hold before the next line] — a longer power-on
-     self test, roughly four and a half seconds end to end */
-  var lines = [
-    ["Secret95 BIOS v1.03  (C) 1995",            320],
-    ["",                                          120],
-    ["CPU     : 486DX2  66 MHz",                  240],
-    ["Memory Test : 640K",                        400],
-    ["Memory Test : 640K OK",                     300],
-    ["",                                          160],
-    ["Detecting IDE drives ...",                  440],
-    ["  Primary Master  : SECRET95 HDD",          250],
-    ["  Primary Slave   : None",                  200],
-    ["Detecting serial ports  ... COM1 COM2",     240],
-    ["Detecting parallel ports ... LPT1",         240],
-    ["",                                          170],
-    ["Verifying DMI pool data ...",               480],
-    ["Loading SECRET95.EXE ...",                  540],
-    ["",                                          100]
-  ];
-  var li = 0;
-  boot.addEventListener("click", bootDone);
-  document.addEventListener("keydown", function once(){
-    document.removeEventListener("keydown", once); bootDone();
-  });
-  (function next(){
-    if (document.body.classList.contains("booted")) return;
-    if (li >= lines.length){ setTimeout(bootDone, 240); return; }
-    var line = lines[li++];
-    /* the second Memory Test line overwrites the first, the way a
-       real POST counts up in place */
-    if (line[0].indexOf("Memory Test") === 0 && li > 1 &&
-        lines[li - 2][0].indexOf("Memory Test") === 0){
-      boot.textContent = boot.textContent.replace(/Memory Test : 640K\n$/, "");
+    function bootDone(){
+      if (document.body.classList.contains("booted")) return;
+      document.body.classList.add("booted");
+      try { sessionStorage.setItem("s95boot","1"); } catch(e){}
+      initTypewriter();
     }
-    boot.textContent += line[0] + "\n";
-    setTimeout(next, line[1]);
-  })();
+
+    forceReveal = function(){ bootDone(); if (skipTyping) skipTyping(); };
+
+    if (REDUCE || seen){ bootDone(); return; }
+
+    /* [text, ms to hold before the next line] — a longer power-on
+       self test, roughly four and a half seconds end to end */
+    var lines = [
+      ["Secret95 BIOS v1.03  (C) 1995",            320],
+      ["",                                          120],
+      ["CPU     : 486DX2  66 MHz",                  240],
+      ["Memory Test : 640K",                        400],
+      ["Memory Test : 640K OK",                     300],
+      ["",                                          160],
+      ["Detecting IDE drives ...",                  440],
+      ["  Primary Master  : SECRET95 HDD",          250],
+      ["  Primary Slave   : None",                  200],
+      ["Detecting serial ports  ... COM1 COM2",     240],
+      ["Detecting parallel ports ... LPT1",         240],
+      ["",                                          170],
+      ["Verifying DMI pool data ...",               480],
+      ["Loading SECRET95.EXE ...",                  540],
+      ["",                                          100]
+    ];
+    var li = 0;
+    boot.addEventListener("click", bootDone);
+    document.addEventListener("keydown", function once(){
+      document.removeEventListener("keydown", once); bootDone();
+    });
+    (function next(){
+      if (document.body.classList.contains("booted")) return;
+      if (li >= lines.length){ setTimeout(bootDone, 240); return; }
+      var line = lines[li++];
+      /* the second Memory Test line overwrites the first, the way a
+         real POST counts up in place */
+      if (line[0].indexOf("Memory Test") === 0 && li > 1 &&
+          lines[li - 2][0].indexOf("Memory Test") === 0){
+        boot.textContent = boot.textContent.replace(/Memory Test : 640K\n$/, "");
+      }
+      boot.textContent += line[0] + "\n";
+      setTimeout(next, line[1]);
+    })();
+  }
+
+  /* ---------------------------------------------------------------
+     GO
+     --------------------------------------------------------------- */
+  initMenuNav();
+  var boot = document.getElementById("boot");
+  if (boot) startBoot(boot); else initTypewriter();
 })();

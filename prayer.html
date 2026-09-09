@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Send a Message</title>
-<meta name="description" content="Send a message from an old graphics interface.">
+<title>Prayer Request</title>
+<meta name="description" content="Send a prayer request.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%230000AA'/%3E%3Crect x='3' y='3' width='10' height='10' fill='none' stroke='%23C0C0C0'/%3E%3Crect x='6' y='6' width='4' height='4' fill='%23FFFF00'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,13 +26,13 @@
 
 <main class="tui-desktop">
   <section class="tui-panel tui-panel--raised prose" data-typewriter="intro">
-    <div class="tui-titlebar">C:\MAIL.EXE</div>
+    <div class="tui-titlebar">C:\PRAYER.EXE</div>
     <div class="tui-closebox" aria-hidden="true">[&#9632;]</div>
 
-    <h1>New Message</h1>
+    <h1>Prayer Request</h1>
     <div class="rule" aria-hidden="true"></div>
 
-    <p>Type your message below and press SEND. It comes straight to me.</p>
+    <p>Type your request below and press SEND. It comes straight to me, and I will pray over it. A reply address is optional &mdash; leave it blank if you would rather stay anonymous.</p>
 
     <form id="msgForm" class="tui-form" method="POST"
           action="https://formspree.io/f/xwlkwypo" novalidate>
@@ -44,19 +44,19 @@
       </div>
 
       <div class="tui-field">
-        <label class="tui-label" for="f-email">Reply address <span class="req">*</span></label>
+        <label class="tui-label" for="f-email">Reply address <span class="brk">(optional)</span></label>
         <input class="tui-input" type="email" id="f-email" name="email"
-               maxlength="120" required autocomplete="email" placeholder="you@example.com">
+               maxlength="120" autocomplete="email" placeholder="leave blank to stay anonymous">
       </div>
 
       <div class="tui-field">
-        <label class="tui-label" for="f-msg">Message <span class="req">*</span></label>
+        <label class="tui-label" for="f-msg">Request <span class="req">*</span></label>
         <textarea class="tui-textarea" id="f-msg" name="message"
-                  maxlength="4000" required placeholder="Say what you came to say."></textarea>
+                  maxlength="4000" required placeholder="What can I pray for?"></textarea>
       </div>
 
-      <input type="hidden" name="_subject" value="Message from indianarobbins.com">
-      <input type="hidden" name="kind" value="message">
+      <input type="hidden" name="_subject" value="Prayer request from indianarobbins.com">
+      <input type="hidden" name="kind" value="prayer request">
 
       <!-- spam trap: a real person never fills this in -->
       <input class="tui-honey" type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true">
@@ -65,7 +65,7 @@
         <button class="tui-btn tui-btn--action" type="submit" id="sendBtn"><span class="brk">[</span> SEND <span class="brk">]</span></button>
         <button class="tui-btn" type="reset"><span class="brk">[</span> CLEAR <span class="brk">]</span></button>
         <a class="tui-btn" href="index.html"><span class="brk">[</span> &#8592; BACK TO HOME <span class="brk">]</span></a>
-        <a class="tui-btn" href="prayer.html"><span class="brk">[</span> PRAYER REQUEST <span class="brk">]</span></a>
+        <a class="tui-btn" href="message.html"><span class="brk">[</span> SEND A MESSAGE <span class="brk">]</span></a>
       </div>
 
       <div class="tui-status" id="status" role="status" aria-live="polite"></div>
@@ -102,8 +102,8 @@
     var mail = document.getElementById("f-email").value.trim();
     var body = document.getElementById("f-msg").value.trim();
 
-    if (!name || !mail || !body){ say("! ALL FIELDS ARE REQUIRED.", "err"); return; }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){ say("! THAT REPLY ADDRESS DOES NOT LOOK RIGHT.", "err"); return; }
+    if (!name || !body){ say("! NAME AND REQUEST ARE REQUIRED.", "err"); return; }
+    if (mail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){ say("! THAT REPLY ADDRESS DOES NOT LOOK RIGHT.", "err"); return; }
 
     /* the endpoint has not been set yet — fail loudly rather than silently */
     if (form.action.indexOf("YOUR_FORM_ID") !== -1){
@@ -121,7 +121,7 @@
     }).then(function(res){
       if (res.ok){
         form.reset();
-        say("&#9632; MESSAGE SENT. Thank you &mdash; I will read it.", "ok");
+        say("&#9632; REQUEST RECEIVED. Thank you &mdash; I will pray over it.", "ok");
       } else {
         return res.json().then(function(d){
           var m = (d && d.errors && d.errors.length) ? d.errors[0].message : "the server rejected it";
