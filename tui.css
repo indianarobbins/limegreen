@@ -255,6 +255,16 @@ a:hover,a:focus-visible{ background:var(--dos-cyan); color:var(--dos-blue); outl
 .sysrow span{ white-space:nowrap; }
 .sysrow em{ color:var(--dos-yellow); font-style:normal; }
 
+
+/* ------------------------------------------------------------------
+   TYPEWRITER — applied by tui.js only; nothing is hidden without JS
+   ------------------------------------------------------------------ */
+.tw-hide{ display:none !important; }
+.tw-caret{ margin-left:0; }
+
+/* external link marker */
+.tui-btn .ext{ color:var(--dos-gray); }
+
 /* ------------------------------------------------------------------
    STATUS BAR
    ------------------------------------------------------------------ */
