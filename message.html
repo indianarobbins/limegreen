@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Send a Message</title>
+<meta name="description" content="Send a message from an old graphics interface.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%230000AA'/%3E%3Crect x='3' y='3' width='10' height='10' fill='none' stroke='%23C0C0C0'/%3E%3Crect x='6' y='6' width='4' height='4' fill='%23FFFF00'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tui.css">
+</head>
+<body>
+
+<div class="scanlines" aria-hidden="true"></div>
+
+<nav class="tui-menubar" aria-hidden="true">
+  <span><span class="key">F</span>ile</span>
+  <span><span class="key">E</span>dit</span>
+  <span><span class="key">S</span>earch</span>
+  <span><span class="key">V</span>iew</span>
+  <span><span class="key">H</span>elp</span>
+  <span class="clock" id="clock">--:--</span>
+</nav>
+
+<main class="tui-desktop">
+  <section class="tui-panel tui-panel--raised prose" data-typewriter="intro">
+    <div class="tui-titlebar">C:\MAIL.EXE</div>
+    <div class="tui-closebox" aria-hidden="true">[&#9632;]</div>
+
+    <h1>New Message</h1>
+    <div class="rule" aria-hidden="true"></div>
+
+    <p>Type your message below and press SEND. It comes straight to me.</p>
+
+    <form id="msgForm" class="tui-form" method="POST"
+          action="https://formspree.io/f/YOUR_FORM_ID" novalidate>
+
+      <div class="tui-field">
+        <label class="tui-label" for="f-name">Name <span class="req">*</span></label>
+        <input class="tui-input" type="text" id="f-name" name="name"
+               maxlength="80" required autocomplete="name" placeholder="Who is this?">
+      </div>
+
+      <div class="tui-field">
+        <label class="tui-label" for="f-email">Reply address <span class="req">*</span></label>
+        <input class="tui-input" type="email" id="f-email" name="email"
+               maxlength="120" required autocomplete="email" placeholder="you@example.com">
+      </div>
+
+      <div class="tui-field">
+        <label class="tui-label" for="f-msg">Message <span class="req">*</span></label>
+        <textarea class="tui-textarea" id="f-msg" name="message"
+                  maxlength="4000" required placeholder="Say what you came to say."></textarea>
+      </div>
+
+      <!-- spam trap: a real person never fills this in -->
+      <input class="tui-honey" type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+      <div class="tui-actions">
+        <button class="tui-btn tui-btn--action" type="submit" id="sendBtn"><span class="brk">[</span> SEND <span class="brk">]</span></button>
+        <button class="tui-btn" type="reset"><span class="brk">[</span> CLEAR <span class="brk">]</span></button>
+        <a class="tui-btn" href="index.html"><span class="brk">[</span> &#8592; BACK TO HOME <span class="brk">]</span></a>
+      </div>
+
+      <div class="tui-status" id="status" role="status" aria-live="polite"></div>
+    </form>
+  </section>
+</main>
+
+<footer class="tui-statusbar">
+  <span><b>F1</b> Help</span>
+  <span><b>F3</b> View</span>
+  <span><b>F5</b> Copy</span>
+  <span><b>F10</b> Exit</span>
+  <span class="right">INS &nbsp; NUM &nbsp; CAPS</span>
+</footer>
+
+<script src="tui.js"></script>
+<script>
+(function(){
+  "use strict";
+  var form   = document.getElementById("msgForm");
+  var status = document.getElementById("status");
+  var btn    = document.getElementById("sendBtn");
+
+  function say(msg, cls){
+    status.innerHTML = '<span class="' + cls + '">' + msg + '</span>';
+  }
+
+  form.addEventListener("submit", function(e){
+    e.preventDefault();
+
+    /* look these up by id: form.name would return the form's own
+       name property, not the field */
+    var name = document.getElementById("f-name").value.trim();
+    var mail = document.getElementById("f-email").value.trim();
+    var body = document.getElementById("f-msg").value.trim();
+
+    if (!name || !mail || !body){ say("! ALL FIELDS ARE REQUIRED.", "err"); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){ say("! THAT REPLY ADDRESS DOES NOT LOOK RIGHT.", "err"); return; }
+
+    /* the endpoint has not been set yet — fail loudly rather than silently */
+    if (form.action.indexOf("YOUR_FORM_ID") !== -1){
+      say("! MAIL TRANSPORT NOT CONFIGURED &mdash; NOTHING WAS SENT.<br>&nbsp;&nbsp;Set the Formspree endpoint in message.html to enable sending.", "err");
+      return;
+    }
+
+    btn.disabled = true;
+    say("SENDING ...", "ok");
+
+    fetch(form.action, {
+      method: "POST",
+      body: new FormData(form),
+      headers: { "Accept": "application/json" }
+    }).then(function(res){
+      if (res.ok){
+        form.reset();
+        say("&#9632; MESSAGE SENT. Thank you &mdash; I will read it.", "ok");
+      } else {
+        return res.json().then(function(d){
+          var m = (d && d.errors && d.errors.length) ? d.errors[0].message : "the server rejected it";
+          say("! NOT SENT: " + m, "err");
+        });
+      }
+    }).catch(function(){
+      say("! NOT SENT: no connection to the mail server.", "err");
+    }).then(function(){
+      btn.disabled = false;
+    });
+  });
+})();
+</script>
+</body>
+</html>
