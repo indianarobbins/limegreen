@@ -1,73 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About Me</title>
-    <style>
-        body {
-            background-color: black;
-            color: lime;
-            font-family: "Courier New", monospace;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .window {
-            border: 2px solid lime;
-            width: 80%;
-            max-width: 600px;
-            padding: 20px;
-            box-shadow: 4px 4px 0 lime;
-        }
-        .title-bar {
-            background-color: lime;
-            color: black;
-            padding: 5px;
-            font-weight: bold;
-            text-align: left;
-        }
-        .content {
-            padding: 10px;
-            font-size: 20px;
-            font-weight: bold;
-            text-shadow: 0 0 5px lime, 0 0 10px lime;
-        }
-        .button {
-            display: inline-block;
-            background: lime;
-            color: black;
-            border: 2px solid black;
-            padding: 5px 10px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 20px;
-            box-shadow: 2px 2px 0 black;
-            transition: all 0.2s ease;
-            text-decoration: none;
-        }
-        .button:hover {
-            box-shadow: 4px 4px 0 black;
-            background: black;
-            color: lime;
-            border: 2px solid lime;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About Me</title>
+<meta name="description" content="Before I had a name for it, I was chosen.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%230000AA'/%3E%3Crect x='3' y='3' width='10' height='10' fill='none' stroke='%23C0C0C0'/%3E%3Crect x='6' y='6' width='4' height='4' fill='%23FFFF00'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tui.css">
 </head>
 <body>
-    <div class="window">
-        <div class="title-bar">File Explorer - [BIO]</div>
-        <div class="content">
-            This is my BIO page.  
-            <br><br>
-            All glory to God.  
-            <br><br>
-            <a href="index.html" class="button">Back to Home</a>
-        </div>
+
+<div class="scanlines" aria-hidden="true"></div>
+
+<nav class="tui-menubar" aria-hidden="true">
+  <span><span class="key">F</span>ile</span>
+  <span><span class="key">E</span>dit</span>
+  <span><span class="key">S</span>earch</span>
+  <span><span class="key">V</span>iew</span>
+  <span><span class="key">H</span>elp</span>
+  <span class="clock" id="clock">--:--</span>
+</nav>
+
+<main class="tui-desktop">
+  <article class="tui-panel tui-panel--wide tui-panel--raised prose">
+    <div class="tui-titlebar">C:\BIO.TXT</div>
+    <div class="tui-closebox" aria-hidden="true">[&#9632;]</div>
+
+    <h1>Bio</h1>
+    <div class="rule" aria-hidden="true"></div>
+
+    <p>Before I had a name for it, I was chosen. <strong>Ephesians 1:4&ndash;5 (YLT):</strong> God did <span class="verse">&ldquo;choose us in him before the foundation of the world&hellip; having foreordained us to the adoption of sons through Jesus Christ to himself.&rdquo;</span> I didn&rsquo;t drift into the family. I was placed in it, on purpose, before there was a world to place me in.</p>
+
+    <p><strong>Romans 8:15&ndash;17</strong> carries that adoption further than Ephesians does. <span class="verse">&ldquo;Ye did not receive a spirit of bondage again for fear, but ye received a spirit of adoption in which we cry, &lsquo;Abba &mdash; Father.&rsquo; The Spirit himself doth testify with our spirit, that we are children of God; and if children, also heirs, heirs, indeed, of God, and heirs together of Christ.&rdquo;</span> Not a status declared once and left alone &mdash; the Spirit keeps testifying to it.</p>
+
+    <p>That adoption remade me. <span class="verse">&ldquo;If any one is in Christ &mdash; he is a new creature; the old things did pass away, lo, become new have the all things&rdquo;</span> (<strong>2 Corinthians 5:17</strong>). And because Christ bore what I owed: <span class="verse">&ldquo;there is, then, now no condemnation to those in Christ Jesus&rdquo;</span> (<strong>Romans 8:1</strong>).</p>
+
+    <p>That&rsquo;s the ground I work from &mdash; not proving worth, but living out of one already given.<span class="cursor" aria-hidden="true"></span></p>
+
+    <div class="tui-actions">
+      <a class="tui-btn" href="index.html"><span class="brk">[</span> &#8592; BACK TO HOME <span class="brk">]</span></a>
     </div>
+  </article>
+</main>
+
+<footer class="tui-statusbar">
+  <span><b>F1</b> Help</span>
+  <span><b>F3</b> View</span>
+  <span><b>F5</b> Copy</span>
+  <span><b>F10</b> Exit</span>
+  <span class="right">INS &nbsp; NUM &nbsp; CAPS</span>
+</footer>
+
+<script src="tui.js"></script>
 </body>
 </html>
