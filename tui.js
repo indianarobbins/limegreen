@@ -202,28 +202,61 @@
 
   /* ---------------------------------------------------------------
      MENU KEYBOARD NAVIGATION
-     Arrow keys move the highlight through the menu, Enter opens it.
-     Focus is the selection, so the existing :focus-visible styling
-     does the highlighting and Enter activates links and buttons
-     natively — no key handling needed for activation.
+     Arrow keys move the highlight through the buttons, Enter opens
+     whatever is highlighted.
+
+     Two shapes of page, and they want different things from Up/Down:
+
+       .tui-menu     the home screen's grid of entries. The arrows own
+                     the keyboard outright — there is nothing to read
+                     past and nothing to scroll.
+
+       .tui-actions  the row of buttons at the foot of an article.
+                     Here the text is the point, so Up/Down keep
+                     scrolling the page. Left/Right move the highlight
+                     whenever you want it, and once you have scrolled
+                     to the bottom a Down press drops you into the
+                     button row. Up off the front of the row hands
+                     scrolling back.
+
+     Enter activates, Escape lets go. Typing in a field is left alone.
      --------------------------------------------------------------- */
   var forceReveal = function(){ if (skipTyping) skipTyping(); };
 
   function initMenuNav(){
     var menu = document.querySelector(".tui-menu");
-    if (!menu) return;
+    var nav = menu || document.querySelector(".tui-actions");
+    if (!nav) return;
+
+    /* the home grid owns the arrow keys; an article's row shares them */
+    var ownsArrows = !!menu;
 
     var sel = -1;   /* our own selection state, independent of focus */
 
     function items(){
-      return Array.prototype.slice.call(menu.querySelectorAll(".tui-btn"));
+      return Array.prototype.slice.call(nav.querySelectorAll(".tui-btn"));
     }
 
     /* how many columns the grid is currently showing */
     function columns(){
-      var t = getComputedStyle(menu).gridTemplateColumns;
+      var t = getComputedStyle(nav).gridTemplateColumns;
       if (!t || t === "none") return 1;
       return t.trim().split(/\s+/).length;
+    }
+
+    /* nothing left to scroll? then Down has nowhere to go but the row.
+       A page shorter than the window counts as already at the bottom. */
+    function atBottom(){
+      var doc = document.documentElement;
+      var full = Math.max(doc.scrollHeight, document.body.scrollHeight);
+      return (window.innerHeight + (window.pageYOffset || doc.scrollTop || 0)) >= full - 4;
+    }
+
+    function deselect(list){
+      for (var i = 0; i < list.length; i++) list[i].classList.remove("is-selected");
+      var act = document.activeElement;
+      if (act && act.blur && nav.contains(act)){ try { act.blur(); } catch(e){} }
+      sel = -1;
     }
 
     function select(list, j){
@@ -235,10 +268,15 @@
       /* focus as well, for screen readers — but the highlight above is
          what people actually see, so this is allowed to fail */
       try { el.focus({ preventScroll: true }); } catch(e){ try { el.focus(); } catch(e2){} }
+      /* on an article, Left/Right can pick the row while it is still
+         off-screen, so bring it into view */
+      if (!ownsArrows && el.scrollIntoView){
+        try { el.scrollIntoView({ block: "nearest" }); } catch(e3){}
+      }
     }
 
     /* clicking or hovering with a mouse clears the keyboard highlight */
-    menu.addEventListener("mousedown", function(){
+    nav.addEventListener("mousedown", function(){
       var list = items();
       for (var i = 0; i < list.length; i++) list[i].classList.remove("is-selected");
       sel = -1;
@@ -247,7 +285,7 @@
     document.addEventListener("keydown", function(e){
       var k = e.key;
       var isArrow = (k === "ArrowUp" || k === "ArrowDown" || k === "ArrowLeft" || k === "ArrowRight");
-      if (!isArrow && k !== "Home" && k !== "End" && k !== "Enter") return;
+      if (!isArrow && k !== "Home" && k !== "End" && k !== "Enter" && k !== "Escape") return;
       if (e.altKey || e.ctrlKey || e.metaKey) return;
 
       /* typing in a field keeps normal cursor and submit behaviour */
@@ -266,6 +304,11 @@
         return;
       }
 
+      if (k === "Escape"){
+        if (sel >= 0){ e.preventDefault(); deselect(list); }
+        return;
+      }
+
       /* an arrow while the page is still printing reveals it first,
          so the very first press also lands on an item */
       forceReveal();
@@ -273,25 +316,67 @@
       if (!list.length) return;
 
       var n = list.length;
-      var cols = columns();
       var j;
 
-      if (sel < 0){
-        j = (k === "ArrowUp" || k === "ArrowLeft" || k === "End") ? n - 1 : 0;
-      } else if (k === "Home"){
-        j = 0;
-      } else if (k === "End"){
-        j = n - 1;
-      } else {
-        var delta = (k === "ArrowRight") ?  1
-                  : (k === "ArrowLeft")  ? -1
-                  : (k === "ArrowDown")  ?  cols
-                  :                       -cols;
-        j = ((sel + delta) % n + n) % n;
+      /* ---- home screen: the arrows are ours ---------------------- */
+      if (ownsArrows){
+        var cols = columns();
+
+        if (sel < 0){
+          j = (k === "ArrowUp" || k === "ArrowLeft" || k === "End") ? n - 1 : 0;
+        } else if (k === "Home"){
+          j = 0;
+        } else if (k === "End"){
+          j = n - 1;
+        } else {
+          var delta = (k === "ArrowRight") ?  1
+                    : (k === "ArrowLeft")  ? -1
+                    : (k === "ArrowDown")  ?  cols
+                    :                       -cols;
+          j = ((sel + delta) % n + n) % n;
+        }
+
+        e.preventDefault();
+        select(list, j);
+        return;
       }
 
-      e.preventDefault();
-      select(list, j);
+      /* ---- article: Up/Down belong to the page first -------------- */
+
+      /* Home and End stay with the browser — they jump the article */
+      if (k === "Home" || k === "End"){ deselect(list); return; }
+
+      if (k === "ArrowLeft" || k === "ArrowRight"){
+        if (sel < 0) j = (k === "ArrowRight") ? 0 : n - 1;
+        else         j = ((sel + (k === "ArrowRight" ? 1 : -1)) % n + n) % n;
+        e.preventDefault();
+        select(list, j);
+        return;
+      }
+
+      if (k === "ArrowDown"){
+        if (sel < 0){
+          /* still reading: let the page scroll. Only when there is
+             nothing left to scroll does Down enter the row. */
+          if (!atBottom()) return;
+          e.preventDefault();
+          select(list, 0);
+        } else {
+          e.preventDefault();
+          if (sel < n - 1) select(list, sel + 1);
+        }
+        return;
+      }
+
+      if (k === "ArrowUp"){
+        /* off the front of the row: let go and let this same press
+           scroll, so one key gets you back into the text */
+        if (sel === 0){ deselect(list); return; }
+        if (sel < 0) return;
+        e.preventDefault();
+        select(list, sel - 1);
+        return;
+      }
     });
   }
 
