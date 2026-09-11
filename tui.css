@@ -594,3 +594,72 @@ mark.tui-found.is-current{ background:var(--dos-yellow); }
   .tui-dropdown{ min-width:13em; }
   .tui-mi{ gap:.8em; }
 }
+
+/* ==================================================================
+   FILE PANEL — the Notes & Links window
+   A Norton Commander listing: name, size, date, time, a highlight
+   bar you drive with the arrow keys, and an info panel underneath
+   describing whatever is currently under it.
+   ================================================================== */
+.tui-files{ margin:.1em 0 0; }
+
+.tui-fhead,.tui-frow{
+  display:flex;
+  gap:1.2em;
+  width:100%;
+  text-align:left;
+  font:inherit;
+  white-space:nowrap;
+}
+.tui-fhead{
+  color:var(--dos-yellow);
+  padding:0 .5em .15em;
+  border-bottom:1px solid var(--dos-gray);
+  margin-bottom:.15em;
+}
+.tui-frow{
+  background:transparent;
+  color:var(--dos-white);
+  border:0;
+  padding:.08em .5em;
+  cursor:pointer;
+}
+.tui-frow.is-selected{ background:var(--dos-cyan); color:var(--dos-blue); }
+.tui-frow.is-selected .dim{ color:var(--dos-blue); }
+
+.tui-fname{ flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; }
+.tui-fsize{ width:8ch;  text-align:right; }
+.tui-fdate{ width:9ch;  text-align:right; }
+.tui-ftime{ width:6ch;  text-align:right; }
+.tui-frow .dim,.tui-fhead .dim{ color:var(--dos-gray); }
+
+.tui-finfo{
+  margin-top:.7em;
+  padding-top:.6em;
+  border-top:1px solid var(--dos-gray);
+  min-height:4.6em;
+}
+.tui-finfo .ftitle{ color:var(--dos-yellow); font-weight:700; }
+.tui-finfo .fdesc{ color:var(--dos-white); }
+.tui-ftotal{
+  margin-top:.5em;
+  padding-top:.45em;
+  border-top:1px solid var(--dos-gray);
+  color:var(--dos-gray);
+  display:flex;
+  justify-content:space-between;
+  gap:1em;
+}
+
+@media (max-width:34em){
+  .tui-ftime{ display:none; }
+  .tui-fhead,.tui-frow{ gap:.7em; }
+}
+@media (max-width:26em){
+  .tui-fdate{ display:none; }
+}
+
+/* the cyan bar is the focus indicator here, and it tracks focus exactly,
+   so a second ring on top of it only muddies which row is live */
+.tui-frow:focus{ outline:none; }
+.tui-frow:focus-visible{ outline:none; }

@@ -1090,6 +1090,144 @@
   }
 
   /* ---------------------------------------------------------------
+     NOTES & LINKS
+     One window instead of six entries cluttering the front page.
+     A Norton Commander listing: the sizes and dates are real, taken
+     from the files themselves and from the day each note was first
+     written. Arrow keys drive the bar, ENTER opens, and the panel
+     underneath describes whatever is currently highlighted.
+     --------------------------------------------------------------- */
+  var NOTES = [
+    { file:"EXODUS34.TXT", size:5960,  date:"02-06-25", time:"15:55", href:"exodus34.html",
+      title:"Exodus 34",
+      desc:"Smaller compromises lead to bigger falls. Solomon did not start by worshipping idols; he began by making alliances." },
+    { file:"EXODUS40.TXT", size:4139,  date:"02-07-25", time:"14:52", href:"exodus40.html",
+      title:"Exodus 40",
+      desc:"When we do exactly as the Lord commands, exactly as He commands it, we become obedient." },
+    { file:"LEVITIC1.TXT", size:6149,  date:"02-07-25", time:"17:07", href:"leviticus1.html",
+      title:"Leviticus 1",
+      desc:"God dwells among Israel, and sets the boundaries for how sinful people may approach His presence." },
+    { file:"LEVITIC2.TXT", size:3989,  date:"02-12-25", time:"21:26", href:"leviticus2.html",
+      title:"Leviticus 2",
+      desc:"The grain offering presents human effort and labour \u2014 grain must be harvested, ground and prepared." },
+    { file:"MARK5.TXT",    size:12482, date:"03-02-25", time:"20:23", href:"mark5.html",
+      title:"Mark 5",
+      desc:"Jesus\u2019 authority over the spiritual, the physical and the natural realms, one scene after another." },
+    { file:"MARK7.TXT",    size:4286,  date:"03-02-25", time:"20:15", href:"mark7.html",
+      title:"Mark 7",
+      desc:"Jesus confronts religious tradition and exposes the true source of what defiles a person." },
+    { file:"MORNEVE.URL",  size:null,  date:"", time:"", href:"https://indianarobbins.github.io/morning-evening/",
+      external:true, title:"Morning & Evening",
+      desc:"Spurgeon\u2019s daily readings, morning and evening, on a site of their own. Opens in a new tab." }
+  ];
+
+  function commas(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
+
+  function openNotes(){
+    var rows = [], sel = 0, info;
+
+    function paint(){
+      rows.forEach(function(r, i){ r.classList.toggle("is-selected", i === sel); });
+      /* keep the caret with the bar: two highlights in different places
+         is worse than none, and screen readers follow focus */
+      if (rows[sel] && document.activeElement !== rows[sel]){
+        try { rows[sel].focus({ preventScroll:true }); } catch(e){}
+      }
+      var n = NOTES[sel];
+      info.innerHTML = '<div class="ftitle">' + esc(n.title) + (n.external ? ' <span class="dim">(external)</span>' : "") +
+                       '</div><div class="fdesc">' + esc(n.desc) + "</div>";
+    }
+
+    function move(d){
+      sel = (sel + d + NOTES.length) % NOTES.length;
+      paint();
+      try { rows[sel].scrollIntoView({ block:"nearest" }); } catch(e){}
+    }
+
+    function open(i){
+      var n = NOTES[i];
+      if (n.external) window.open(n.href, "_blank", "noopener");
+      else location.href = n.href;
+    }
+
+    openDialog({
+      title: "C:\\NOTES",
+      wide: true,
+      buttons: [
+        { label:"OPEN", act: function(){ open(sel); } },
+        { label:"CLOSE" }
+      ],
+      onKey: function(e){
+        switch (e.key){
+          case "ArrowDown": e.preventDefault(); move(1);  return true;
+          case "ArrowUp":   e.preventDefault(); move(-1); return true;
+          case "Home":      e.preventDefault(); sel = 0; paint(); return true;
+          case "End":       e.preventDefault(); sel = NOTES.length - 1; paint(); return true;
+          case "Enter":     e.preventDefault(); open(sel); return true;
+        }
+        return false;
+      },
+      build: function(body){
+        var list = el("div", "tui-files");
+
+        var head = el("div", "tui-fhead");
+        head.innerHTML = '<span class="tui-fname">Name</span>' +
+                         '<span class="tui-fsize">Size</span>' +
+                         '<span class="tui-fdate">Date</span>' +
+                         '<span class="tui-ftime">Time</span>';
+        list.appendChild(head);
+
+        NOTES.forEach(function(n, i){
+          var row = el("button", "tui-frow");
+          row.type = "button";
+          row.innerHTML = '<span class="tui-fname">' + esc(n.file) + "</span>" +
+                          '<span class="tui-fsize">' + (n.size == null ? '<span class="dim">\u2014</span>' : commas(n.size)) + "</span>" +
+                          '<span class="tui-fdate dim">' + esc(n.date || "\u2014") + "</span>" +
+                          '<span class="tui-ftime dim">' + esc(n.time || "") + "</span>";
+          /* the mouse previews on the way past and opens on the click */
+          row.addEventListener("mouseenter", function(){ sel = i; paint(); });
+          row.addEventListener("focus", function(){ sel = i; paint(); });
+          row.addEventListener("click", function(){ open(i); });
+          rows.push(row);
+          list.appendChild(row);
+        });
+        body.appendChild(list);
+
+        info = el("div", "tui-finfo");
+        body.appendChild(info);
+
+        var bytes = NOTES.reduce(function(a, n){ return a + (n.size || 0); }, 0);
+        var total = el("div", "tui-ftotal");
+        total.innerHTML = "<span>" + NOTES.length + " file(s)</span>" +
+                          "<span>" + commas(bytes) + " bytes</span>" +
+                          "<span>\u2191\u2193 select \u00b7 ENTER open</span>";
+        body.appendChild(total);
+
+        paint();
+      }
+    });
+  }
+
+  /* buttons in the page markup that run something instead of going
+     somewhere: <button class="tui-btn" data-act="search"> */
+  var ACTIONS = {
+    search: function(){ openSearch(); },
+    notes:  openNotes,
+    votd:   verseOfTheDay,
+    find:   openFind
+  };
+
+  function wireActions(){
+    var list = document.querySelectorAll("[data-act]");
+    for (var i = 0; i < list.length; i++){
+      (function(btn){
+        var fn = ACTIONS[btn.getAttribute("data-act")];
+        if (fn) btn.addEventListener("click", function(e){ e.preventDefault(); fn(); });
+      })(list[i]);
+    }
+  }
+
+  /* ---------------------------------------------------------------
      THE MENUS
      Built by script into the bar that was decoration until now, so
      no page has to carry the markup. Without JS the bar simply reads
@@ -1106,6 +1244,7 @@
       { label:"The Gospel",       hot:"G", act: go("gospel.html") },
       { label:"Send a Message",   hot:"S", act: go("message.html") },
       { label:"Prayer Request",   hot:"P", act: go("prayer.html") },
+      { label:"Notes & Links\u2026", hot:"N", act: openNotes },
       SEP,
       { label:"Print\u2026",      hot:"R", act: function(){ window.print(); } },
       { label:"Save as Text\u2026", hot:"A", act: saveAsText },
@@ -1373,6 +1512,7 @@
      GO
      --------------------------------------------------------------- */
   buildMenubar();
+  wireActions();
   initMenuNav();
   var boot = document.getElementById("boot");
   if (boot) startBoot(boot); else initTypewriter();
