@@ -230,9 +230,17 @@ a:hover,a:focus-visible{ background:var(--dos-cyan); color:var(--dos-blue); outl
 .tui-btn:hover .brk,.tui-btn:focus-visible .brk,
 .tui-btn:hover .hot,.tui-btn:focus-visible .hot{ color:var(--dos-black); }
 
+/* explicit selection state — does not depend on :focus-visible, which
+   Safari will not apply to programmatic focus */
+.tui-btn.is-selected{ background:var(--dos-gray); color:var(--dos-black); outline:none; }
+.tui-btn.is-selected .brk,
+.tui-btn.is-selected .hot{ color:var(--dos-black); }
+
 .tui-btn--action{ color:var(--dos-yellow); font-weight:700; }
 .tui-btn--action:hover,.tui-btn--action:focus-visible{ background:var(--dos-yellow); color:var(--dos-blue); }
 .tui-btn--action:hover .brk,.tui-btn--action:focus-visible .brk{ color:var(--dos-blue); }
+.tui-btn--action.is-selected{ background:var(--dos-yellow); color:var(--dos-blue); }
+.tui-btn--action.is-selected .brk{ color:var(--dos-blue); }
 
 /* inline row of buttons at the foot of a note page */
 .tui-actions{

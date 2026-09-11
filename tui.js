@@ -59,9 +59,24 @@
 
   var skipTyping = null;   /* set while a typewriter is running */
 
+  /* pages remember, for the length of the browser session, that they
+     have already printed themselves once. Coming back to a page you
+     have already read renders it in full immediately instead of
+     re-typing it at you. Same idea as the boot sequence above. */
+  function twKey(){
+    return "s95tw:" + location.pathname;
+  }
+  function twSeen(){
+    try { return sessionStorage.getItem(twKey()) === "1"; } catch(e){ return false; }
+  }
+  function twMarkSeen(){
+    try { sessionStorage.setItem(twKey(), "1"); } catch(e){}
+  }
+
   function initTypewriter(){
     var host = document.querySelector("[data-typewriter]");
-    if (!host || REDUCE) return;
+    if (!host || REDUCE || twSeen()) return;
+    twMarkSeen();
 
     var mode = host.getAttribute("data-typewriter") || "full";
 
@@ -198,6 +213,8 @@
     var menu = document.querySelector(".tui-menu");
     if (!menu) return;
 
+    var sel = -1;   /* our own selection state, independent of focus */
+
     function items(){
       return Array.prototype.slice.call(menu.querySelectorAll(".tui-btn"));
     }
@@ -209,29 +226,57 @@
       return t.trim().split(/\s+/).length;
     }
 
+    function select(list, j){
+      for (var i = 0; i < list.length; i++) list[i].classList.remove("is-selected");
+      sel = j;
+      var el = list[j];
+      if (!el) return;
+      el.classList.add("is-selected");
+      /* focus as well, for screen readers — but the highlight above is
+         what people actually see, so this is allowed to fail */
+      try { el.focus({ preventScroll: true }); } catch(e){ try { el.focus(); } catch(e2){} }
+    }
+
+    /* clicking or hovering with a mouse clears the keyboard highlight */
+    menu.addEventListener("mousedown", function(){
+      var list = items();
+      for (var i = 0; i < list.length; i++) list[i].classList.remove("is-selected");
+      sel = -1;
+    });
+
     document.addEventListener("keydown", function(e){
       var k = e.key;
-      if (k !== "ArrowUp" && k !== "ArrowDown" && k !== "ArrowLeft" &&
-          k !== "ArrowRight" && k !== "Home" && k !== "End") return;
+      var isArrow = (k === "ArrowUp" || k === "ArrowDown" || k === "ArrowLeft" || k === "ArrowRight");
+      if (!isArrow && k !== "Home" && k !== "End" && k !== "Enter") return;
       if (e.altKey || e.ctrlKey || e.metaKey) return;
 
-      /* typing in a field should keep normal cursor behaviour */
+      /* typing in a field keeps normal cursor and submit behaviour */
       var t = e.target;
       if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
-
-      /* an arrow while the page is still printing reveals it first,
-         so the very first press also lands on an item */
-      forceReveal();
 
       var list = items();
       if (!list.length) return;
 
-      var cols = columns();
-      var i = list.indexOf(document.activeElement);
+      /* Enter opens whatever is selected. Activate it ourselves rather
+         than relying on the browser doing it for a focused link. */
+      if (k === "Enter"){
+        if (sel < 0 || !list[sel]) return;
+        e.preventDefault();
+        list[sel].click();
+        return;
+      }
+
+      /* an arrow while the page is still printing reveals it first,
+         so the very first press also lands on an item */
+      forceReveal();
+      list = items();
+      if (!list.length) return;
+
       var n = list.length;
+      var cols = columns();
       var j;
 
-      if (i < 0){
+      if (sel < 0){
         j = (k === "ArrowUp" || k === "ArrowLeft" || k === "End") ? n - 1 : 0;
       } else if (k === "Home"){
         j = 0;
@@ -242,11 +287,11 @@
                   : (k === "ArrowLeft")  ? -1
                   : (k === "ArrowDown")  ?  cols
                   :                       -cols;
-        j = ((i + delta) % n + n) % n;
+        j = ((sel + delta) % n + n) % n;
       }
 
       e.preventDefault();
-      list[j].focus();
+      select(list, j);
     });
   }
 
@@ -271,20 +316,20 @@
     /* [text, ms to hold before the next line] — a longer power-on
        self test, roughly four and a half seconds end to end */
     var lines = [
-      ["Secret95 BIOS v1.03  (C) 1995",            320],
+      ["Gospel95 BIOS v1.03  (C) 1995",            320],
       ["",                                          120],
       ["CPU     : 486DX2  66 MHz",                  240],
       ["Memory Test : 640K",                        400],
       ["Memory Test : 640K OK",                     300],
       ["",                                          160],
       ["Detecting IDE drives ...",                  440],
-      ["  Primary Master  : SECRET95 HDD",          250],
+      ["  Primary Master  : GOSPEL95 HDD",          250],
       ["  Primary Slave   : None",                  200],
       ["Detecting serial ports  ... COM1 COM2",     240],
       ["Detecting parallel ports ... LPT1",         240],
       ["",                                          170],
       ["Verifying DMI pool data ...",               480],
-      ["Loading SECRET95.EXE ...",                  540],
+      ["Loading GOSPEL95.EXE ...",                  540],
       ["",                                          100]
     ];
     var li = 0;
